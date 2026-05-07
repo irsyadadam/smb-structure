@@ -13,15 +13,6 @@ Moving Document: A World Model Training Paradigm for Longitudinal EHR."
   MEDS DataFrame → `smb_utils` → model → patient embedding.
 - `model/` — model and tokenizer implementation.
 
-## What's not here yet
-
-To preserve anonymity and finalize documentation, the following will be
-released upon acceptance:
-
-- Preprocessing pipeline
-- Evaluation cookbook (linear probe protocol, 515 endpoints)
-- Pretrained checkpoints for additional model sizes
-
 ## Quick start
 
 ```bash
