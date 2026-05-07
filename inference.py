@@ -1,14 +1,11 @@
-"""Load an SMB-Structure checkpoint and run a single forward pass.
+"""Model loader and patient-embedding helpers.
 
-Reads a pre-formatted patient timeline (the output of the preprocessing
-pipeline, which is not part of this anonymized release), tokenizes it,
-runs a forward pass with hidden states enabled, and returns the final
-hidden state as a patient embedding.
+The eval pipeline lives in `examples/run_example.py`, which uses
+`smb_utils.process_ehr_info` to turn a MEDS DataFrame into the
+structured text these helpers consume.
 """
 
-import argparse
 import os
-from pathlib import Path
 
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
@@ -19,7 +16,7 @@ DEFAULT_MODEL_ID = os.environ.get(
 )
 
 
-def load_model(model_id: str, device_map: str = "auto"):
+def load_model(model_id: str = DEFAULT_MODEL_ID, device_map: str = "auto"):
     tokenizer = AutoTokenizer.from_pretrained(model_id, trust_remote_code=True)
     model = AutoModelForCausalLM.from_pretrained(
         model_id,
@@ -47,31 +44,3 @@ def embed_patient(text: str, model, tokenizer) -> torch.Tensor:
         return_dict=True,
     )
     return outputs.hidden_states[-1]
-
-
-def main() -> None:
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--model_id",
-        default=DEFAULT_MODEL_ID,
-        help="HF repo id or local path. Override with SMB_MODEL_ID env var.",
-    )
-    parser.add_argument(
-        "--input",
-        type=Path,
-        default=Path(__file__).parent / "examples" / "synthetic_patient.txt",
-        help="Path to a pre-formatted patient timeline (plain text).",
-    )
-    args = parser.parse_args()
-
-    text = args.input.read_text()
-    model, tokenizer = load_model(args.model_id)
-    embedding = embed_patient(text, model, tokenizer)
-
-    print(f"input_tokens: {tokenizer(text, return_tensors='pt').input_ids.shape[1]}")
-    print(f"hidden_states[-1] shape: {tuple(embedding.shape)}")
-    print(f"mean-pooled embedding[:8]: {embedding.mean(dim=1)[0, :8].float().tolist()}")
-
-
-if __name__ == "__main__":
-    main()
