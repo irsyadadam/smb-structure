@@ -15,7 +15,7 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 
 
 DEFAULT_MODEL_ID = os.environ.get(
-    "SMB_MODEL_ID", "<anonymous-hf-org>/smb-structure-qwen3-1.7b"
+    "SMB_MODEL_ID", "anon-9421/smb-structure-qwen3-1.7b-multi-objective"
 )
 
 
